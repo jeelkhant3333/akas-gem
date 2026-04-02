@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 // ─── Constants ───────────────────────────────────────────────────────────────
 const KAPAN_OPTIONS = ["HS", "KAAS3", "KP2", "AGXF3", "KP1", "HS2", "KAAS1"];
 const SHAPE_OPTIONS = ["ROUND", "PEAR", "HEART", "OVAL", "RADIANT", "CUSHION", "EMERALD", "PRINCESS", "FLOWER", "MARQUISE"];
-const COLOUR_OPTIONS = ["D", "E", "F", "G", "H", "I", "J", "K", "FANCY LIGHT YELLOW", "FANCY YELLOW", "INTENSE YELLOW", "VIVID YELLOW", "FANCY LIGHT PINK", "FANCY PINK", "INTENSE PINK"];
+const COLOUR_OPTIONS = ["D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
 const CLARITY_OPTIONS = ["FL", "IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1", "I2"];
 const GRADE_OPTIONS = ["EX", "VG", "GD", "FR", "PR"];
 const FLO_OPTIONS = ["NON", "FAINT", "MEDIUM", "STRONG", "VERY STRONG"];
@@ -336,7 +336,7 @@ function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) {
   return (
     <div>
       <Section title="Stone Identity">
-        <Sel label="Kapan *" value={f.kapan} onChange={s("kapan")} options={KAPAN_OPTIONS} />
+        <Inp label="Kapan *" value={f.kapan} onChange={s("kapan")} placeholder="e.g. HS" />
         <Inp label="Lot No." value={f.lot} onChange={s("lot")} placeholder="e.g. 26" />
         <Sel label="Shape *" value={f.shape} onChange={s("shape")} options={SHAPE_OPTIONS} />
         <Inp label="Weight (ct) *" value={f.weight} onChange={s("weight")} type="number" placeholder="0.00" />
