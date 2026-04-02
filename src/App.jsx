@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import "./App.css";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const KAPAN_OPTIONS = ["HS", "KAAS3", "KP2", "AGXF3", "KP1", "HS2", "KAAS1"];
@@ -27,230 +28,6 @@ const SEED = [
   { id: 5, kapan:"AGXF3", lot:"4", shape:"RADIANT", weight:"4.03", colour:"E", clarity:"VVS2", cut:"", pol:"EX", sym:"EX", flo:"NON", lab:"IGI", perCrt:"105", totalCrt:"423.15", rate:"92.47", amount:"39128.68", brokerage:"0", fAmount:"39128.68", cirtyNo:"LG776635230", paymentStatus:"BAKI", sellDate:"2026-03-18", location:"MUMBAI", partyName:"MAYUR MEHTA", brokerName:"", terms:"MONDAY", paymentDoneDate:"" },
   { id: 6, kapan:"AGXF3", lot:"6A", shape:"RADIANT", weight:"4.01", colour:"E", clarity:"VVS2", cut:"", pol:"EX", sym:"EX", flo:"NON", lab:"IGI", perCrt:"105", totalCrt:"421.05", rate:"92.47", amount:"38934.49", brokerage:"0", fAmount:"38934.49", cirtyNo:"LG776635229", paymentStatus:"BAKI", sellDate:"2026-03-18", location:"MUMBAI", partyName:"MAYUR MEHTA", brokerName:"", terms:"MONDAY", paymentDoneDate:"" },
 ];
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
-const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg:        #f5f6f8;
-    --white:     #ffffff;
-    --grey-50:   #f9fafb;
-    --grey-100:  #f3f4f6;
-    --grey-200:  #e5e7eb;
-    --grey-300:  #d1d5db;
-    --grey-400:  #9ca3af;
-    --grey-600:  #4b5563;
-    --grey-800:  #1f2937;
-    --primary:   #35496B;
-    --blue:      #167FB3;
-    --blue-lt:   #e8f4fb;
-    --blue-mid:  #bde0f3;
-    --danger:    #dc2626;
-    --danger-lt: #fef2f2;
-    --success:   #16a34a;
-    --success-lt:#f0fdf4;
-    --warn:      #d97706;
-    --warn-lt:   #fffbeb;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow:    0 4px 12px rgba(0,0,0,0.08);
-    --radius:    8px;
-  }
-
-  body { background: var(--bg); color: var(--grey-800); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.5; }
-
-  /* ── LAYOUT ── */
-  .app { min-height: 100vh; display: flex; flex-direction: column; }
-  .main { flex: 1; padding: 28px 32px; max-width: 1400px; margin: 0 auto; width: 100%; }
-
-  /* ── HEADER ── */
-  .header {
-    background: var(--primary);
-    padding: 0 32px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 2px 8px rgba(53,73,107,0.25);
-    height: 58px;
-  }
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-icon {
-    width: 30px; height: 30px;
-    background: var(--blue);
-    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-  }
-  .logo-name { font-size: 17px; font-weight: 600; color: #fff; letter-spacing: 1.5px; }
-  .logo-tag { font-size: 10px; color: rgba(255,255,255,0.5); margin-left: 2px; letter-spacing: 0.5px; }
-
-  /* ── NAV TABS ── */
-  .nav { display: flex; gap: 4px; }
-  .nav-btn {
-    padding: 6px 18px; font-size: 12px; font-weight: 500; font-family: 'Inter', sans-serif;
-    letter-spacing: 0.3px; cursor: pointer; border: none;
-    border-radius: 5px; background: transparent; color: rgba(255,255,255,0.6);
-    transition: all 0.15s;
-  }
-  .nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-  .nav-btn.active { background: var(--blue); color: #fff; }
-
-  /* ── PAGE HEADER ── */
-  .page-header { margin-bottom: 24px; }
-  .page-title { font-size: 20px; font-weight: 600; color: var(--grey-800); margin-bottom: 3px; }
-  .page-sub { font-size: 12px; color: var(--grey-400); }
-
-  /* ── CARD ── */
-  .card {
-    background: var(--white); border: 1px solid var(--grey-200);
-    border-radius: var(--radius); box-shadow: var(--shadow-sm);
-  }
-  .card-header {
-    padding: 14px 20px; border-bottom: 1px solid var(--grey-100);
-    display: flex; align-items: center; gap: 8px;
-  }
-  .card-header-dot { width: 3px; height: 16px; background: var(--blue); border-radius: 2px; }
-  .card-header-title { font-size: 12px; font-weight: 600; color: var(--grey-600); text-transform: uppercase; letter-spacing: 0.8px; }
-  .card-body { padding: 20px; }
-
-  /* ── FORM GRID ── */
-  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  .form-grid + .form-grid { margin-top: 0; }
-  .span2 { grid-column: span 2; }
-  .span3 { grid-column: span 3; }
-
-  .field { display: flex; flex-direction: column; gap: 5px; }
-  .field label { font-size: 11px; font-weight: 500; color: var(--grey-600); letter-spacing: 0.2px; }
-
-  input, select {
-    height: 36px; padding: 0 10px;
-    background: var(--white); border: 1px solid var(--grey-300);
-    border-radius: 6px; color: var(--grey-800);
-    font-family: 'Inter', sans-serif; font-size: 13px;
-    outline: none; transition: border-color 0.15s, box-shadow 0.15s; width: 100%;
-  }
-  input:focus, select:focus {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(22,127,179,0.12);
-  }
-  input::placeholder { color: var(--grey-400); }
-  select { cursor: pointer; }
-  select option { background: #fff; color: var(--grey-800); }
-
-  input.computed {
-    background: var(--blue-lt); border-color: var(--blue-mid);
-    color: var(--blue); font-family: 'DM Mono', monospace; font-size: 12px;
-    font-weight: 500;
-  }
-
-  .section-sep {
-    grid-column: 1 / -1; display: flex; align-items: center; gap: 10px;
-    margin: 6px 0 2px;
-  }
-  .sep-label { font-size: 10px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
-  .sep-line { flex: 1; height: 1px; background: var(--grey-200); }
-
-  /* ── BUTTONS ── */
-  .btn-row { display: flex; gap: 10px; margin-top: 20px; }
-  .btn { height: 36px; padding: 0 18px; border-radius: 6px; font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 6px; }
-  .btn-primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-  .btn-primary:hover { background: #1370a0; border-color: #1370a0; }
-  .btn-outline { background: #fff; color: var(--grey-600); border-color: var(--grey-300); }
-  .btn-outline:hover { border-color: var(--grey-400); background: var(--grey-50); }
-  .btn-danger-outline { background: #fff; color: var(--danger); border-color: #fca5a5; }
-  .btn-danger-outline:hover { background: var(--danger-lt); }
-  .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
-  .btn-success:hover { background: #15803d; }
-  .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; border-radius: 5px; }
-
-  /* ── STATS ── */
-  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
-  .stat-card {
-    background: var(--white); border: 1px solid var(--grey-200);
-    border-radius: var(--radius); padding: 16px 18px;
-    box-shadow: var(--shadow-sm);
-  }
-  .stat-label { font-size: 11px; font-weight: 500; color: var(--grey-400); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .stat-val { font-size: 26px; font-weight: 600; color: var(--grey-800); line-height: 1.1; }
-  .stat-val.blue { color: var(--blue); }
-  .stat-val.primary { color: var(--primary); }
-  .stat-val.danger { color: var(--danger); }
-  .stat-sub { font-size: 11px; color: var(--grey-400); margin-top: 3px; }
-
-  /* ── FILTERS ── */
-  .filters-bar {
-    background: var(--white); border: 1px solid var(--grey-200);
-    border-radius: var(--radius); padding: 14px 18px; margin-bottom: 16px;
-    display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
-    box-shadow: var(--shadow-sm);
-  }
-  .filter-field { display: flex; flex-direction: column; gap: 4px; min-width: 110px; }
-  .filter-field label { font-size: 10px; font-weight: 600; color: var(--grey-400); text-transform: uppercase; letter-spacing: 0.5px; }
-  .filter-field input, .filter-field select { height: 32px; font-size: 12px; }
-  .filter-actions { display: flex; gap: 8px; margin-left: auto; align-items: flex-end; }
-
-  /* ── TABLE ── */
-  .table-card { background: var(--white); border: 1px solid var(--grey-200); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead { background: var(--grey-50); border-bottom: 1px solid var(--grey-200); }
-  thead th {
-    padding: 10px 14px; text-align: left; white-space: nowrap;
-    font-size: 11px; font-weight: 600; color: var(--grey-600);
-    text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none;
-  }
-  thead th:hover { color: var(--blue); }
-  tbody tr { border-bottom: 1px solid var(--grey-100); transition: background 0.1s; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--grey-50); }
-  tbody td { padding: 10px 14px; white-space: nowrap; color: var(--grey-800); }
-  td.mono { font-family: 'DM Mono', monospace; font-size: 12px; }
-
-  /* ── BADGES ── */
-  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
-  .badge-cash    { background: var(--success-lt); color: var(--success); }
-  .badge-bank    { background: var(--blue-lt);    color: var(--blue); }
-  .badge-baki    { background: var(--danger-lt);  color: var(--danger); }
-  .badge-pending { background: var(--warn-lt);    color: var(--warn); }
-
-  /* ── TABLE FOOTER ── */
-  .table-footer {
-    padding: 10px 14px; border-top: 1px solid var(--grey-200);
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 12px; color: var(--grey-400); background: var(--grey-50);
-  }
-
-  /* ── EMPTY STATE ── */
-  .empty { text-align: center; padding: 56px 20px; color: var(--grey-400); }
-  .empty-icon { font-size: 40px; margin-bottom: 10px; }
-  .empty-text { font-size: 14px; }
-
-  /* ── MODAL ── */
-  .overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.4); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
-  .modal { background: #fff; border-radius: 10px; max-width: 860px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-  .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--grey-200); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #fff; z-index: 1; border-radius: 10px 10px 0 0; }
-  .modal-title { font-size: 15px; font-weight: 600; color: var(--grey-800); }
-  .modal-close { background: none; border: 1px solid var(--grey-200); color: var(--grey-400); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-  .modal-close:hover { border-color: var(--danger); color: var(--danger); }
-  .modal-body { padding: 22px; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px; z-index: 999;
-    background: var(--grey-800); color: #fff;
-    padding: 12px 18px; border-radius: 8px; font-size: 13px;
-    box-shadow: var(--shadow); display: flex; align-items: center; gap: 8px;
-    animation: toastIn 0.25s ease;
-  }
-  .toast-dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; }
-  @keyframes toastIn { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-  @media (max-width: 900px) {
-    .form-grid { grid-template-columns: repeat(2, 1fr); }
-    .stats-row  { grid-template-columns: repeat(2, 1fr); }
-    .main { padding: 16px; }
-    .header { padding: 0 16px; }
-  }
-`;
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function Field({ label, children }) {
@@ -310,7 +87,14 @@ function Section({ title, children }) {
 
 // ─── Diamond Form ─────────────────────────────────────────────────────────────
 function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) {
-  const [f, setF] = useState({ ...EMPTY_FORM, ...initial });
+  const [f, setF] = useState({
+    cut: "EX",
+    pol: "EX",
+    sym: "EX",
+    flo: "NON",
+    lab: "IGI"
+  });
+
   const s = key => val => setF(p => ({ ...p, [key]: val }));
 
   const totalCrt = useMemo(() => {
@@ -319,8 +103,9 @@ function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) {
   }, [f.weight, f.perCrt]);
 
   const amount = useMemo(() => {
-    const t = parseFloat(totalCrt), r = parseFloat(f.rate);
-    return t && r ? (t * r / 100).toFixed(2) : "";
+    const t = parseFloat(totalCrt);
+    const r = parseFloat(f.rate);
+    return t && r ? (t * r).toFixed(2) : "";
   }, [totalCrt, f.rate]);
 
   const fAmount = useMemo(() => {
@@ -356,7 +141,7 @@ function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) {
       <Section title="Pricing">
         <Inp label="Per Crt ($)" value={f.perCrt} onChange={s("perCrt")} type="number" placeholder="0.00" />
         <Inp label="Total Crt $ (auto)" value={totalCrt} computed />
-        <Inp label="Rate (%)" value={f.rate} onChange={s("rate")} type="number" placeholder="0.00" />
+        <Inp label="Rate" value={f.rate} onChange={s("rate")} type="number" placeholder="0.00" />
         <Inp label="Amount (auto)" value={amount} computed />
         <Inp label="Brokerage ($)" value={f.brokerage} onChange={s("brokerage")} type="number" placeholder="0.00" />
         <Inp label="Final Amount (auto)" value={fAmount} computed />
@@ -620,7 +405,6 @@ export default function App() {
 
   return (
     <>
-      <style>{css}</style>
       <div className="app">
         <header className="header">
           <div className="logo">
