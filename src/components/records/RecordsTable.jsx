@@ -1,5 +1,11 @@
 import Badge from "../ui/Badge";
 
+/** Sortable header cell. Declared outside the parent so it keeps a stable identity. */
+function Th({ k, label, sort, onSort }) {
+  const arrow = sort.k === k ? (sort.d === "asc" ? " ↑" : " ↓") : "";
+  return <th onClick={() => onSort(k)}>{label}{arrow}</th>;
+}
+
 /**
  * RecordsTable
  * Props:
@@ -12,9 +18,6 @@ import Badge from "../ui/Badge";
  *   totalAmt  – pre-computed total fAmount
  */
 export default function RecordsTable({ data, sort, onSort, onEdit, onDelete, totalWt, totalAmt }) {
-  const arrow = k => sort.k === k ? (sort.d === "asc" ? " ↑" : " ↓") : "";
-  const Th = ({ k, label }) => <th onClick={() => onSort(k)}>{label}{arrow(k)}</th>;
-
   if (data.length === 0) {
     return (
       <div className="empty">
@@ -30,19 +33,19 @@ export default function RecordsTable({ data, sort, onSort, onEdit, onDelete, tot
         <table>
           <thead>
             <tr>
-              <Th k="kapan"    label="Kapan" />
-              <Th k="lot"      label="Lot" />
-              <Th k="shape"    label="Shape" />
-              <Th k="weight"   label="Wt (ct)" />
-              <Th k="colour"   label="Colour" />
+              <Th k="kapan"     label="Kapan"     sort={sort} onSort={onSort} />
+              <Th k="lotNo"     label="Lot"       sort={sort} onSort={onSort} />
+              <Th k="shape"     label="Shape"     sort={sort} onSort={onSort} />
+              <Th k="weightCt"  label="Wt (ct)"   sort={sort} onSort={onSort} />
+              <Th k="color"     label="Colour"    sort={sort} onSort={onSort} />
               <th>Clarity</th>
               <th>C/P/S</th>
               <th>Lab</th>
               <th>Cert No.</th>
-              <Th k="perCrt"   label="$/ct" />
-              <Th k="fAmount"  label="Final $" />
+              <Th k="perCarat"    label="$/ct"    sort={sort} onSort={onSort} />
+              <Th k="finalAmount" label="Final $" sort={sort} onSort={onSort} />
               <th>Status</th>
-              <Th k="sellDate" label="Sell Date" />
+              <Th k="sellDate" label="Sell Date"  sort={sort} onSort={onSort} />
               <th>Location</th>
               <th>Party</th>
               <th>Actions</th>
@@ -52,19 +55,19 @@ export default function RecordsTable({ data, sort, onSort, onEdit, onDelete, tot
             {data.map(r => (
               <tr key={r.id}>
                 <td style={{ fontWeight: 600, color: "var(--primary)" }}>{r.kapan}</td>
-                <td className="mono" style={{ color: "var(--grey-400)" }}>{r.lot}</td>
+                <td className="mono" style={{ color: "var(--grey-400)" }}>{r.lotNo}</td>
                 <td>{r.shape}</td>
-                <td className="mono">{r.weight}</td>
-                <td style={{ maxWidth: 130, overflow: "hidden", textOverflow: "ellipsis" }}>{r.colour}</td>
+                <td className="mono">{r.weightCt}</td>
+                <td style={{ maxWidth: 130, overflow: "hidden", textOverflow: "ellipsis" }}>{r.color}</td>
                 <td className="mono">{r.clarity}</td>
                 <td className="mono" style={{ color: "var(--grey-400)" }}>
-                  {[r.cut, r.pol, r.sym].filter(Boolean).join("/") || "—"}
+                  {[r.cut, r.polish, r.symmetry].filter(Boolean).join("/") || "—"}
                 </td>
                 <td>{r.lab}</td>
-                <td className="mono" style={{ fontSize: 11, color: "var(--grey-400)" }}>{r.cirtyNo}</td>
-                <td className="mono">{r.perCrt ? `$${r.perCrt}` : "—"}</td>
+                <td className="mono" style={{ fontSize: 11, color: "var(--grey-400)" }}>{r.certNo}</td>
+                <td className="mono">{r.perCarat ? `$${r.perCarat}` : "—"}</td>
                 <td className="mono" style={{ fontWeight: 600, color: "var(--blue)" }}>
-                  {r.fAmount ? `$${parseFloat(r.fAmount).toLocaleString("en-US", { maximumFractionDigits: 0 })}` : "—"}
+                  {r.finalAmount ? `$${parseFloat(r.finalAmount).toLocaleString("en-US", { maximumFractionDigits: 0 })}` : "—"}
                 </td>
                 <td><Badge status={r.paymentStatus} /></td>
                 <td style={{ color: "var(--grey-600)" }}>{r.sellDate || "—"}</td>

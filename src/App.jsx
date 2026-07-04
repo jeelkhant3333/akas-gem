@@ -1,34 +1,40 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 
 import Header      from "./components/layout/Header";
 import Toast       from "./components/ui/Toast";
 import DiamondForm from "./components/form/DiamondForm";
 import RecordsPage from "./components/records/RecordsPage";
-import { SEED }    from "./data/seed";
+import MastersPage from "./components/masters/MastersPage";
+import { useEntity } from "./hooks/useEntity";
 
 export default function App() {
-  const [tab,     setTab]     = useState("add");
-  const [records, setRecords] = useState(SEED);
-  const [toast,   setToast]   = useState(null);
+  const [tab,   setTab]   = useState("add");
+  const [toast, setToast] = useState(null);
 
-  let toastTimer = null;
+  const { items, create } = useEntity("stone");
+
+  const toastTimer = useRef(null);
   const showToast = msg => {
     setToast(msg);
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => setToast(null), 2600);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2600);
   };
 
-  const handleAddRecord = data => {
-    setRecords(r => [...r, { ...data, id: Date.now() }]);
-    showToast("Diamond record saved ✓");
-    setTab("records");
+  const handleAddRecord = async data => {
+    try {
+      await create(data).unwrap();
+      showToast("Diamond record saved ✓");
+      setTab("records");
+    } catch (err) {
+      showToast(err.message || "Save failed");
+    }
   };
 
   return (
     <>
       <div className="app">
-        <Header tab={tab} setTab={setTab} recordCount={records.length} />
+        <Header tab={tab} setTab={setTab} recordCount={items.length} />
 
         <main className="main">
           {tab === "add" && (
@@ -41,13 +47,9 @@ export default function App() {
             </>
           )}
 
-          {tab === "records" && (
-            <RecordsPage
-              records={records}
-              setRecords={setRecords}
-              showToast={showToast}
-            />
-          )}
+          {tab === "records" && <RecordsPage showToast={showToast} />}
+
+          {tab === "masters" && <MastersPage showToast={showToast} />}
         </main>
       </div>
 

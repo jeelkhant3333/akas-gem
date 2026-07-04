@@ -1,35 +1,49 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import FiltersBar   from "./FiltersBar";
 import StatsRow     from "./StatsRow";
 import RecordsTable from "./RecordsTable";
 import DiamondForm  from "../form/DiamondForm";
+import { useEntity } from "../../hooks/useEntity";
+import { useMasterOptions } from "../../hooks/useMasterOptions";
 
 const EMPTY_FILTERS = { kapan: "", shape: "", location: "", paymentStatus: "", search: "" };
 
 /**
  * RecordsPage
+ * Sources diamond records from the Redux `stone` slice and routes edit/delete
+ * through its CRUD thunks. Filtering + sorting stay client-side over the
+ * currently loaded page.
+ *
  * Props:
- *   records    – full records array
- *   setRecords – state setter
- *   showToast  – fn(message)
+ *   showToast – fn(message)
  */
-export default function RecordsPage({ records, setRecords, showToast }) {
+export default function RecordsPage({ showToast }) {
+  const { items: records, list, update, remove } = useEntity("stone");
+  const masterOpts = useMasterOptions();
+
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [editRow, setEditRow] = useState(null);
   const [sort,    setSort]    = useState({ k: "sellDate", d: "desc" });
 
+  // Load records once on mount.
+  useEffect(() => {
+    list();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Filtering + Sorting ───────────────────────────────────────────────────
   const data = useMemo(() => {
+    const eq = (a, b) => String(a ?? "").toLowerCase() === String(b ?? "").toLowerCase();
     return records
       .filter(r => {
-        if (filters.kapan         && r.kapan         !== filters.kapan)         return false;
-        if (filters.shape         && r.shape         !== filters.shape)         return false;
-        if (filters.location      && r.location      !== filters.location)      return false;
-        if (filters.paymentStatus && r.paymentStatus !== filters.paymentStatus) return false;
+        if (filters.kapan         && !eq(r.kapan, filters.kapan))                 return false;
+        if (filters.shape         && !eq(r.shape, filters.shape))                 return false;
+        if (filters.location      && !eq(r.location, filters.location))           return false;
+        if (filters.paymentStatus && !eq(r.paymentStatus, filters.paymentStatus)) return false;
         if (filters.search) {
           const q = filters.search.toLowerCase();
-          return [r.partyName, r.brokerName, r.cirtyNo, r.lot, r.kapan]
-            .some(v => v?.toLowerCase().includes(q));
+          return [r.partyName, r.brokerName, r.certNo, r.lotNo, r.kapan]
+            .some(v => String(v ?? "").toLowerCase().includes(q));
         }
         return true;
       })
@@ -42,28 +56,44 @@ export default function RecordsPage({ records, setRecords, showToast }) {
   }, [records, filters, sort]);
 
   // ── Aggregates ────────────────────────────────────────────────────────────
-  const totalWt  = data.reduce((s, r) => s + (parseFloat(r.weight)  || 0), 0);
-  const totalAmt = data.reduce((s, r) => s + (parseFloat(r.fAmount) || 0), 0);
+  const totalWt  = data.reduce((s, r) => s + (parseFloat(r.weightCt)    || 0), 0);
+  const totalAmt = data.reduce((s, r) => s + (parseFloat(r.finalAmount) || 0), 0);
   const pending  = data.filter(r => r.paymentStatus?.toLowerCase().includes("baki")).length;
 
-  const kapanOptions = [...new Set(records.map(r => r.kapan).filter(Boolean))];
+  // Filter dropdowns list the full option set from each master's list API.
+  // Kapan is not a master entity, so it is derived from the loaded records.
+  const labelsOf = key => (masterOpts[key] ?? []).map(o => o.label).filter(Boolean);
+  const kapanOptions         = [...new Set(records.map(r => r.kapan).filter(Boolean))];
+  const shapeOptions         = labelsOf("shape");
+  const locationOptions      = labelsOf("location");
+  const paymentStatusOptions = labelsOf("paymentStatus");
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleFilter = (key, value) => setFilters(p => ({ ...p, [key]: value }));
   const handleReset  = () => setFilters(EMPTY_FILTERS);
   const handleSort   = k  => setSort(p => ({ k, d: p.k === k && p.d === "asc" ? "desc" : "asc" }));
 
-  const handleDelete = id => {
+  const handleDelete = async id => {
     if (confirm("Delete this record?")) {
-      setRecords(r => r.filter(x => x.id !== id));
-      showToast("Record deleted");
+      try {
+        await remove(id).unwrap();
+        await list();
+        showToast("Record deleted");
+      } catch (err) {
+        showToast(err.message || "Delete failed");
+      }
     }
   };
 
-  const handleUpdate = updatedData => {
-    setRecords(r => r.map(x => x.id === editRow.id ? { ...updatedData, id: editRow.id } : x));
-    setEditRow(null);
-    showToast("Record updated ✓");
+  const handleUpdate = async updatedData => {
+    try {
+      await update(editRow.id, { ...updatedData, id: editRow.id }).unwrap();
+      await list();
+      setEditRow(null);
+      showToast("Record updated ✓");
+    } catch (err) {
+      showToast(err.message || "Update failed");
+    }
   };
 
   const handleExportCSV = () => {
@@ -73,9 +103,9 @@ export default function RecordsPage({ records, setRecords, showToast }) {
       "PAYMENT STATUS","SELL DATE","LOCATION","PARTY NAME","BROKER NAME","TERMS","PAYMENT DONE DATE",
     ];
     const rows = data.map(r => [
-      r.kapan, r.lot, r.shape, r.weight, r.colour, r.clarity, r.cut, r.pol,
-      r.sym, r.flo, r.lab, r.perCrt, r.totalCrt, r.rate, r.amount, r.brokerage,
-      r.fAmount, r.cirtyNo, r.paymentStatus, r.sellDate, r.location,
+      r.kapan, r.lotNo, r.shape, r.weightCt, r.color, r.clarity, r.cut, r.polish,
+      r.symmetry, r.fluorescence, r.lab, r.perCarat, r.totalCarat, r.rate, r.amount, r.brokerage,
+      r.finalAmount, r.certNo, r.paymentStatus, r.sellDate, r.location,
       r.partyName, r.brokerName, r.terms, r.paymentDoneDate,
     ]);
     const csv = [H, ...rows].map(r => r.map(c => `"${c ?? ""}"`).join(",")).join("\n");
@@ -108,6 +138,9 @@ export default function RecordsPage({ records, setRecords, showToast }) {
         onReset={handleReset}
         onExport={handleExportCSV}
         kapanOptions={kapanOptions}
+        shapeOptions={shapeOptions}
+        locationOptions={locationOptions}
+        paymentStatusOptions={paymentStatusOptions}
       />
 
       <RecordsTable
@@ -125,7 +158,7 @@ export default function RecordsPage({ records, setRecords, showToast }) {
         <div className="overlay" onClick={e => e.target === e.currentTarget && setEditRow(null)}>
           <div className="modal">
             <div className="modal-head">
-              <span className="modal-title">Edit — {editRow.kapan} / Lot {editRow.lot}</span>
+              <span className="modal-title">Edit — {editRow.kapan} / Lot {editRow.lotNo}</span>
               <button className="modal-close" onClick={() => setEditRow(null)}>✕</button>
             </div>
             <div className="modal-body">

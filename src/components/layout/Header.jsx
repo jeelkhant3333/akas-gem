@@ -19,6 +19,12 @@ export default function Header({ tab, setTab, recordCount }) {
           >
             Records ({recordCount})
           </button>
+          <button
+            className={`nav-btn ${tab === "masters" ? "active" : ""}`}
+            onClick={() => setTab("masters")}
+          >
+            Masters
+          </button>
         </nav>
       </header>
     );

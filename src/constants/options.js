@@ -9,18 +9,25 @@ export const PAYMENT_STATUS_OPTIONS = ["cash", "BANK", "BAKI", "BANK BAKI (AG)",
 export const LOCATION_OPTIONS     = ["DUBAI", "NIVODA", "MUMBAI", "USA", "BELGIUM", "ISRAEL", "HONG KONG"];
 export const TERMS_OPTIONS        = ["MONDAY", "30 DAYS", "60 DAYS", "90 DAYS", "IMMEDIATE", "COD"];
 
+/**
+ * Diamond form state — field names mirror the backend `StoneRequest` so the
+ * payload maps 1:1. Master-backed fields hold the master **id** (not the name).
+ */
 export const EMPTY_FORM = {
-  kapan: "", lot: "", shape: "", weight: "", colour: "", clarity: "",
-  cut: "", pol: "", sym: "", flo: "", lab: "", perCrt: "",
-  rate: "", brokerage: "", cirtyNo: "", paymentStatus: "",
-  sellDate: "", location: "", partyName: "", brokerName: "",
-  brokerNumber: "", terms: "", paymentDoneDate: "",
+  // Stone Identity
+  kapan: "", lotNo: "", shapeId: "", weightCt: "",
+  // Grading
+  colorId: "", clarityId: "", cutId: "", polishId: "", symmetryId: "",
+  fluorescenceId: "", labId: "", certNo: "",
+  // Pricing
+  perCarat: "", rate: "", brokerage: "",
+  // Sale Details
+  paymentStatusId: "", sellDate: "", paymentDoneDate: "",
+  locationId: "", partyName: "", brokerName: "", brokerNumber: "", termsId: "",
 };
 
-export const FORM_DEFAULTS = {
-  cut: "EX",
-  pol: "EX",
-  sym: "EX",
-  flo: "NON",
-  lab: "IGI",
-};
+/**
+ * Defaults are keyed by master **id** and therefore cannot be hard-coded here
+ * (ids come from the backend). Kept for API compatibility with existing imports.
+ */
+export const FORM_DEFAULTS = {};

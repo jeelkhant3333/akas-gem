@@ -1,15 +1,25 @@
-import { SHAPE_OPTIONS, LOCATION_OPTIONS, PAYMENT_STATUS_OPTIONS } from "../../constants/options";
-
 /**
  * FiltersBar
  * Props:
- *   filters       – current filter state object
- *   onFilter      – fn(key, value) to update a single filter
- *   onReset       – fn() to clear all filters
- *   onExport      – fn() to trigger CSV export
- *   kapanOptions  – dynamic list of kapan values from current records
+ *   filters               – current filter state object
+ *   onFilter              – fn(key, value) to update a single filter
+ *   onReset               – fn() to clear all filters
+ *   onExport              – fn() to trigger CSV export
+ *   kapanOptions          – distinct kapan values from current records
+ *   shapeOptions          – distinct shape values from current records
+ *   locationOptions       – distinct location values from current records
+ *   paymentStatusOptions  – distinct payment-status values from current records
  */
-export default function FiltersBar({ filters, onFilter, onReset, onExport, kapanOptions }) {
+export default function FiltersBar({
+  filters,
+  onFilter,
+  onReset,
+  onExport,
+  kapanOptions = [],
+  shapeOptions = [],
+  locationOptions = [],
+  paymentStatusOptions = [],
+}) {
   const f = (key) => (e) => onFilter(key, e.target.value);
 
   return (
@@ -35,7 +45,7 @@ export default function FiltersBar({ filters, onFilter, onReset, onExport, kapan
         <label>Shape</label>
         <select value={filters.shape} onChange={f("shape")}>
           <option value="">All</option>
-          {SHAPE_OPTIONS.map(s => <option key={s}>{s}</option>)}
+          {shapeOptions.map(s => <option key={s}>{s}</option>)}
         </select>
       </div>
 
@@ -43,7 +53,7 @@ export default function FiltersBar({ filters, onFilter, onReset, onExport, kapan
         <label>Location</label>
         <select value={filters.location} onChange={f("location")}>
           <option value="">All</option>
-          {LOCATION_OPTIONS.map(l => <option key={l}>{l}</option>)}
+          {locationOptions.map(l => <option key={l}>{l}</option>)}
         </select>
       </div>
 
@@ -51,7 +61,7 @@ export default function FiltersBar({ filters, onFilter, onReset, onExport, kapan
         <label>Payment</label>
         <select value={filters.paymentStatus} onChange={f("paymentStatus")}>
           <option value="">All</option>
-          {PAYMENT_STATUS_OPTIONS.map(p => <option key={p}>{p}</option>)}
+          {paymentStatusOptions.map(p => <option key={p}>{p}</option>)}
         </select>
       </div>
 
