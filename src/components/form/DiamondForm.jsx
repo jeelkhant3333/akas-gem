@@ -62,6 +62,7 @@ export default function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) 
   // Records come back with master **names** (e.g. shape: "Round"), so once the
   // master lists load, resolve any name into its id for the id-based dropdowns.
   useEffect(() => {
+    console.log("Page Renderd")
     setF((prev) => {
       let changed = false;
       const next = { ...prev };
