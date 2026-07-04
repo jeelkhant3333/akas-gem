@@ -9,7 +9,7 @@ import MastersPage from "./components/masters/MastersPage";
 import { useEntity } from "./hooks/useEntity";
 
 export default function App() {
-  const [tab,   setTab]   = useState("add");
+  const [tab,   setTab]   = useState("records");
   const [toast, setToast] = useState(null);
 
   const { items, create } = useEntity("stone");
