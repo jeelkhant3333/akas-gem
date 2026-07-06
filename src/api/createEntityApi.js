@@ -7,6 +7,7 @@ export const DEFAULT_PAGINATION = {
   sortBy: "id",
   sortDir: "asc",
   search: "",
+  filters: {},
 };
 
 /**
@@ -23,11 +24,19 @@ export function createEntityApi(resource) {
     list: (pagination = {}) => {
       // Whitelist only PaginationRequest fields — never leak response-only
       // fields like totalElements / totalPages back into the request body.
-      const { pageNo, pageSize, sortBy, sortDir, search } = {
+      // `filters` holds entity-specific criteria and is flattened into the body.
+      const { pageNo, pageSize, sortBy, sortDir, search, filters } = {
         ...DEFAULT_PAGINATION,
         ...pagination,
       };
-      return http.post(`${base}/list`, { pageNo, pageSize, sortBy, sortDir, search });
+      return http.post(`${base}/list`, {
+        pageNo,
+        pageSize,
+        sortBy,
+        sortDir,
+        search,
+        ...(filters || {}),
+      });
     },
     getById: (id) => http.get(`${base}/${id}`),
     create: (payload) => http.post(base, payload),

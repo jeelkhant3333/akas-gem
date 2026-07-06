@@ -78,6 +78,10 @@ export function createCrudSlice({ key, resource }) {
         state.pagination.sortBy = action.payload.sortBy;
         state.pagination.sortDir = action.payload.sortDir;
       },
+      setFilters(state, action) {
+        state.pagination.filters = action.payload;
+        state.pagination.pageNo = 0;
+      },
       clearError(state) {
         state.error = null;
       },

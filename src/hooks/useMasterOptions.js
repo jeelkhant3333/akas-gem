@@ -25,9 +25,13 @@ export function useMasterOptions() {
   const terms        = useEntity("terms");
 
   useEffect(() => {
+    // Masters rarely change, so fetch each list only once. Skip any that are
+    // already loaded (or in flight) to avoid re-firing 11 calls on every mount.
     [shape, clarity, color, cut, polish, symmetry,
      fluorescence, lab, location, paymentStatus, terms]
-      .forEach((e) => e.list());
+      .forEach((e) => {
+        if (e.status === "idle" && e.items.length === 0) e.list();
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

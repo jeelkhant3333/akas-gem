@@ -1,79 +1,82 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import FiltersBar   from "./FiltersBar";
 import StatsRow     from "./StatsRow";
 import RecordsTable from "./RecordsTable";
 import DiamondForm  from "../form/DiamondForm";
 import Spinner      from "../ui/Spinner";
+import { BTN }      from "../ui/btn";
 import { useEntity } from "../../hooks/useEntity";
 import { useMasterOptions } from "../../hooks/useMasterOptions";
 
-const EMPTY_FILTERS = { kapan: "", shape: "", location: "", paymentStatus: "", search: "" };
-
 /**
  * RecordsPage
- * Sources diamond records from the Redux `stone` slice and routes edit/delete
- * through its CRUD thunks. Filtering + sorting stay client-side over the
- * currently loaded page.
+ * Sources diamond records from the Redux `stone` slice. Search, sorting,
+ * filtering and pagination are handled server-side via the list API;
+ * edit/delete route through the slice's CRUD thunks.
  *
  * Props:
  *   showToast – fn(message)
  */
 export default function RecordsPage({ showToast }) {
-  const { items: records, status, list, update, remove } = useEntity("stone");
+  const {
+    items: records,
+    status,
+    pagination,
+    list,
+    update,
+    remove,
+    setSearch,
+    setPage,
+    setSort,
+    setFilters,
+  } = useEntity("stone");
   const masterOpts = useMasterOptions();
 
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
-  const [editRow, setEditRow] = useState(null);
-  const [sort,    setSort]    = useState({ k: "sellDate", d: "desc" });
-  const [busy,    setBusy]    = useState(false);
+  const [editRow,     setEditRow]     = useState(null);
+  const [busy,        setBusy]        = useState(false);
+  const [searchInput, setSearchInput] = useState(pagination.search);
 
-  // Load records once on mount.
+  const filters = pagination.filters ?? {};
+  const filtersKey = JSON.stringify(filters);
+
+  // Reload whenever paging / search / sort / filters change (all server-side).
   useEffect(() => {
     list();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pagination.pageNo, pagination.search, pagination.sortBy, pagination.sortDir, filtersKey]);
 
-  // ── Filtering + Sorting ───────────────────────────────────────────────────
-  const data = useMemo(() => {
-    const eq = (a, b) => String(a ?? "").toLowerCase() === String(b ?? "").toLowerCase();
-    return records
-      .filter(r => {
-        if (filters.kapan         && !eq(r.kapan, filters.kapan))                 return false;
-        if (filters.shape         && !eq(r.shape, filters.shape))                 return false;
-        if (filters.location      && !eq(r.location, filters.location))           return false;
-        if (filters.paymentStatus && !eq(r.paymentStatus, filters.paymentStatus)) return false;
-        if (filters.search) {
-          const q = filters.search.toLowerCase();
-          return [r.partyName, r.brokerName, r.certNo, r.lotNo, r.kapan]
-            .some(v => String(v ?? "").toLowerCase().includes(q));
-        }
-        return true;
-      })
-      .sort((a, b) => {
-        let av = a[sort.k] ?? "", bv = b[sort.k] ?? "";
-        const na = parseFloat(av), nb = parseFloat(bv);
-        if (!isNaN(na) && !isNaN(nb)) { av = na; bv = nb; }
-        return sort.d === "asc" ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
-      });
-  }, [records, filters, sort]);
+  const submitSearch = (e) => {
+    e.preventDefault();
+    setSearch(searchInput.trim());
+  };
 
-  // ── Aggregates ────────────────────────────────────────────────────────────
-  const totalWt  = data.reduce((s, r) => s + (parseFloat(r.weightCt)    || 0), 0);
-  const totalAmt = data.reduce((s, r) => s + (parseFloat(r.finalAmount) || 0), 0);
-  const pending  = data.filter(r => r.paymentStatus?.toLowerCase().includes("baki")).length;
+  const handleFilter = (key, value) => setFilters({ ...filters, [key]: value });
 
-  // Filter dropdowns list the full option set from each master's list API.
-  // Kapan is not a master entity, so it is derived from the loaded records.
+  const handleReset = () => {
+    setSearchInput("");
+    setSearch("");
+    setFilters({});
+  };
+
+  const handleSort = (k) => {
+    const dir = pagination.sortBy === k && pagination.sortDir === "asc" ? "desc" : "asc";
+    setSort({ sortBy: k, sortDir: dir });
+  };
+
+  // Filter dropdown options come from the master lists; kapan is derived from
+  // the loaded records (not a master entity).
   const labelsOf = key => (masterOpts[key] ?? []).map(o => o.label).filter(Boolean);
   const kapanOptions         = [...new Set(records.map(r => r.kapan).filter(Boolean))];
   const shapeOptions         = labelsOf("shape");
   const locationOptions      = labelsOf("location");
   const paymentStatusOptions = labelsOf("paymentStatus");
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleFilter = (key, value) => setFilters(p => ({ ...p, [key]: value }));
-  const handleReset  = () => setFilters(EMPTY_FILTERS);
-  const handleSort   = k  => setSort(p => ({ k, d: p.k === k && p.d === "asc" ? "desc" : "asc" }));
+  // ── Aggregates over the current page ──────────────────────────────────────
+  const totalWt  = records.reduce((s, r) => s + (parseFloat(r.weightCt)    || 0), 0);
+  const totalAmt = records.reduce((s, r) => s + (parseFloat(r.finalAmount) || 0), 0);
+  const pending  = records.filter(r => r.paymentStatus?.toLowerCase().includes("baki")).length;
+
+  const totalPages = pagination.totalPages || 1;
 
   // Show a full-page loader on the initial fetch (records not yet loaded).
   const initialLoading = status === "loading" && records.length === 0;
@@ -110,7 +113,7 @@ export default function RecordsPage({ showToast }) {
       "PER CRT $","TOTAL","RATE","AMOUNT","BROKEREJ","F. AMOUNT","CIRTY NO",
       "PAYMENT STATUS","SELL DATE","LOCATION","PARTY NAME","BROKER NAME","TERMS","PAYMENT DONE DATE",
     ];
-    const rows = data.map(r => [
+    const rows = records.map(r => [
       r.kapan, r.lotNo, r.shape, r.weightCt, r.color, r.clarity, r.cut, r.polish,
       r.symmetry, r.fluorescence, r.lab, r.perCarat, r.totalCarat, r.rate, r.amount, r.brokerage,
       r.finalAmount, r.certNo, r.paymentStatus, r.sellDate, r.location,
@@ -129,7 +132,7 @@ export default function RecordsPage({ showToast }) {
     <div>
       <div className="mb-6">
         <div className="text-xl font-semibold text-gray-800 mb-[3px]">Inventory Records</div>
-        <div className="text-xs text-gray-400">Manage, filter and export your diamond stock</div>
+        <div className="text-xs text-gray-400">Manage, search and export your diamond stock</div>
       </div>
 
       {initialLoading ? (
@@ -137,8 +140,8 @@ export default function RecordsPage({ showToast }) {
       ) : (
         <>
           <StatsRow
-            total={records.length}
-            showing={data.length}
+            total={pagination.totalElements}
+            showing={records.length}
             totalWt={totalWt}
             totalAmt={totalAmt}
             pending={pending}
@@ -147,6 +150,9 @@ export default function RecordsPage({ showToast }) {
           <FiltersBar
             filters={filters}
             onFilter={handleFilter}
+            searchInput={searchInput}
+            onSearchInput={setSearchInput}
+            onSubmit={submitSearch}
             onReset={handleReset}
             onExport={handleExportCSV}
             kapanOptions={kapanOptions}
@@ -156,8 +162,8 @@ export default function RecordsPage({ showToast }) {
           />
 
           <RecordsTable
-            data={data}
-            sort={sort}
+            data={records}
+            sort={{ k: pagination.sortBy, d: pagination.sortDir }}
             onSort={handleSort}
             onEdit={setEditRow}
             onDelete={handleDelete}
@@ -165,6 +171,28 @@ export default function RecordsPage({ showToast }) {
             totalWt={totalWt}
             totalAmt={totalAmt}
           />
+
+          {totalPages > 1 && (
+            <div className="flex gap-2.5 justify-center mt-3">
+              <button
+                className={BTN.outlineSm}
+                disabled={busy || status === "loading" || pagination.pageNo <= 0}
+                onClick={() => setPage(pagination.pageNo - 1)}
+              >
+                Prev
+              </button>
+              <span className="self-center">
+                Page {pagination.pageNo + 1} / {totalPages}
+              </span>
+              <button
+                className={BTN.outlineSm}
+                disabled={busy || status === "loading" || pagination.pageNo + 1 >= totalPages}
+                onClick={() => setPage(pagination.pageNo + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </>
       )}
 

@@ -50,6 +50,10 @@ export function useEntity(key) {
     (value) => dispatch(actions.setSort(value)),
     [dispatch, actions]
   );
+  const setFilters = useCallback(
+    (value) => dispatch(actions.setFilters(value)),
+    [dispatch, actions]
+  );
 
   return useMemo(
     () => ({
@@ -64,7 +68,8 @@ export function useEntity(key) {
       setSearch,
       setPage,
       setSort,
+      setFilters,
     }),
-    [items, status, error, pagination, list, create, update, remove, setSearch, setPage, setSort]
+    [items, status, error, pagination, list, create, update, remove, setSearch, setPage, setSort, setFilters]
   );
 }
