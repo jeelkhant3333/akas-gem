@@ -111,7 +111,7 @@ export default function RecordsPage({ showToast }) {
     const csv = [H, ...rows].map(r => r.map(c => `"${c ?? ""}"`).join(",")).join("\n");
     const a = Object.assign(document.createElement("a"), {
       href: URL.createObjectURL(new Blob([csv], { type: "text/csv" })),
-      download: `SHIVO_${new Date().toISOString().slice(0, 10)}.csv`,
+      download: `AKAS_${new Date().toISOString().slice(0, 10)}.csv`,
     });
     a.click();
     showToast("CSV exported ✓");
