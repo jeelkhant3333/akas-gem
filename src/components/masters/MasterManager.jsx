@@ -33,6 +33,7 @@ export default function MasterManager({ entity, showToast }) {
 
   const [modal, setModal] = useState(null); // { mode: "add" | "edit", row? }
   const [searchInput, setSearchInput] = useState(pagination.search);
+  const [busy, setBusy] = useState(false);
 
   // Reload whenever paging / search / sort changes.
   useEffect(() => {
@@ -64,10 +65,13 @@ export default function MasterManager({ entity, showToast }) {
   const handleDelete = async (row) => {
     if (!confirm(`Delete this ${label}?`)) return;
     try {
+      setBusy(true);
       await remove(row.id).unwrap();
       showToast(`${label} deleted`);
     } catch (err) {
       showToast(err.message || "Delete failed");
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -89,6 +93,7 @@ export default function MasterManager({ entity, showToast }) {
           <button
             className={BTN.primarySm}
             onClick={() => setModal({ mode: "add" })}
+            disabled={busy}
           >
             ＋ Add {label}
           </button>
@@ -129,12 +134,14 @@ export default function MasterManager({ entity, showToast }) {
                           <button
                             className={BTN.outlineSm}
                             onClick={() => setModal({ mode: "edit", row })}
+                            disabled={busy}
                           >
                             Edit
                           </button>
                           <button
                             className={BTN.dangerOutlineSm}
                             onClick={() => handleDelete(row)}
+                            disabled={busy}
                           >
                             Del
                           </button>
@@ -153,7 +160,7 @@ export default function MasterManager({ entity, showToast }) {
         <div className="flex gap-2.5 justify-center mt-3">
           <button
             className={BTN.outlineSm}
-            disabled={pagination.pageNo <= 0}
+            disabled={busy || status === "loading" || pagination.pageNo <= 0}
             onClick={() => setPage(pagination.pageNo - 1)}
           >
             Prev
@@ -163,7 +170,7 @@ export default function MasterManager({ entity, showToast }) {
           </span>
           <button
             className={BTN.outlineSm}
-            disabled={pagination.pageNo + 1 >= totalPages}
+            disabled={busy || status === "loading" || pagination.pageNo + 1 >= totalPages}
             onClick={() => setPage(pagination.pageNo + 1)}
           >
             Next

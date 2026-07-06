@@ -1,6 +1,6 @@
 // Shared Tailwind utility strings for buttons.
 // Centralised so the base + size + variant utilities never conflict when combined.
-const base   = "inline-flex items-center gap-1.5 font-medium cursor-pointer transition-all border";
+const base   = "inline-flex items-center gap-1.5 font-medium cursor-pointer transition-all border disabled:opacity-60 disabled:cursor-not-allowed";
 const md     = "h-9 px-[18px] rounded-md text-[13px]";
 const sm     = "h-7 px-2.5 rounded-[5px] text-xs";
 

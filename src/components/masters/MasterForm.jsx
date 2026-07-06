@@ -13,10 +13,11 @@ import { BTN } from "../ui/btn";
 export default function MasterForm({ fields, initial, onSave, onCancel }) {
   const empty = Object.fromEntries(fields.map((f) => [f.name, ""]));
   const [form, setForm] = useState({ ...empty, ...initial });
+  const [saving, setSaving] = useState(false);
 
   const set = (name) => (val) => setForm((p) => ({ ...p, [name]: val }));
 
-  const save = () => {
+  const save = async () => {
     const missing = fields.filter(
       (f) => f.required && !String(form[f.name] ?? "").trim()
     );
@@ -24,7 +25,12 @@ export default function MasterForm({ fields, initial, onSave, onCancel }) {
       alert(`${missing.map((f) => f.label).join(", ")} required.`);
       return;
     }
-    onSave(form);
+    try {
+      setSaving(true);
+      await onSave(form);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -39,9 +45,11 @@ export default function MasterForm({ fields, initial, onSave, onCancel }) {
         />
       ))}
       <div className="flex gap-2.5 mt-5">
-        <button className={BTN.primary} onClick={save}>Save</button>
+        <button className={BTN.primary} onClick={save} disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </button>
         {onCancel && (
-          <button className={BTN.outline} onClick={onCancel}>Cancel</button>
+          <button className={BTN.outline} onClick={onCancel} disabled={saving}>Cancel</button>
         )}
       </div>
     </div>

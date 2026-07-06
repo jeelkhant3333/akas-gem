@@ -59,6 +59,7 @@ const normalizeInitial = (init = {}) => ({
 export default function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) {
   const opts = useMasterOptions();
   const [f, setF] = useState({ ...EMPTY_FORM, ...FORM_DEFAULTS, ...normalizeInitial(initial) });
+  const [saving, setSaving] = useState(false);
 
   // Records come back with master **names** (e.g. shape: "Round"), so once the
   // master lists load, resolve any name into its id for the id-based dropdowns.
@@ -100,44 +101,49 @@ export default function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) 
   }, [amount, f.brokerage]);
 
   // ── Save handler ──────────────────────────────────────────────────────────
-  const save = () => {
+  const save = async () => {
     if (!f.kapan || !f.shapeId || !f.weightCt) {
       alert("Kapan, Shape and Weight are required.");
       return;
     }
 
-    // Payload mirrors the backend `StoneRequest` — master fields send ids.
-    onSave({
-      // Stone Identity
-      kapan: f.kapan,
-      lotNo: f.lotNo,
-      shapeId: num(f.shapeId),
-      weightCt: num(f.weightCt),
-      // Grading
-      colorId: num(f.colorId),
-      clarityId: num(f.clarityId),
-      cutId: num(f.cutId),
-      polishId: num(f.polishId),
-      symmetryId: num(f.symmetryId),
-      fluorescenceId: num(f.fluorescenceId),
-      labId: num(f.labId),
-      certNo: f.certNo,
-      // Pricing
-      perCarat: num(f.perCarat),
-      totalCarat: num(totalCarat),
-      rate: num(f.rate),
-      amount: num(amount),
-      brokerage: num(f.brokerage),
-      finalAmount: num(finalAmount),
-      // Sale Details
-      paymentStatusId: num(f.paymentStatusId),
-      sellDate: f.sellDate || null,
-      paymentDoneDate: f.paymentDoneDate || null,
-      locationId: num(f.locationId),
-      termsId: num(f.termsId),
-      partyName: f.partyName,
-      brokerName: f.brokerName,
-    });
+    try {
+      setSaving(true);
+      // Payload mirrors the backend `StoneRequest` — master fields send ids.
+      await onSave({
+        // Stone Identity
+        kapan: f.kapan,
+        lotNo: f.lotNo,
+        shapeId: num(f.shapeId),
+        weightCt: num(f.weightCt),
+        // Grading
+        colorId: num(f.colorId),
+        clarityId: num(f.clarityId),
+        cutId: num(f.cutId),
+        polishId: num(f.polishId),
+        symmetryId: num(f.symmetryId),
+        fluorescenceId: num(f.fluorescenceId),
+        labId: num(f.labId),
+        certNo: f.certNo,
+        // Pricing
+        perCarat: num(f.perCarat),
+        totalCarat: num(totalCarat),
+        rate: num(f.rate),
+        amount: num(amount),
+        brokerage: num(f.brokerage),
+        finalAmount: num(finalAmount),
+        // Sale Details
+        paymentStatusId: num(f.paymentStatusId),
+        sellDate: f.sellDate || null,
+        paymentDoneDate: f.paymentDoneDate || null,
+        locationId: num(f.locationId),
+        termsId: num(f.termsId),
+        partyName: f.partyName,
+        brokerName: f.brokerName,
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -186,9 +192,11 @@ export default function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) 
 
       {/* ── Actions ───────────────────────────────────────────────────────── */}
       <div className="flex gap-2.5 mt-5">
-        <button className={BTN.primary} onClick={save}>Save Record</button>
-        <button className={BTN.outline} onClick={() => setF({ ...EMPTY_FORM, ...FORM_DEFAULTS })}>Clear</button>
-        {onCancel && <button className={BTN.outline} onClick={onCancel}>Cancel</button>}
+        <button className={BTN.primary} onClick={save} disabled={saving}>
+          {saving ? "Saving…" : "Save Record"}
+        </button>
+        <button className={BTN.outline} onClick={() => setF({ ...EMPTY_FORM, ...FORM_DEFAULTS })} disabled={saving}>Clear</button>
+        {onCancel && <button className={BTN.outline} onClick={onCancel} disabled={saving}>Cancel</button>}
       </div>
     </div>
   );

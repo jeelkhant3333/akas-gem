@@ -22,7 +22,7 @@ function Th({ k, label, sort, onSort }) {
  *   totalWt   – pre-computed total weight
  *   totalAmt  – pre-computed total fAmount
  */
-export default function RecordsTable({ data, sort, onSort, onEdit, onDelete, totalWt, totalAmt }) {
+export default function RecordsTable({ data, sort, onSort, onEdit, onDelete, busy, totalWt, totalAmt }) {
   if (data.length === 0) {
     return (
       <div className="text-center py-14 px-5 text-gray-400">
@@ -82,8 +82,8 @@ export default function RecordsTable({ data, sort, onSort, onEdit, onDelete, tot
                 </td>
                 <td className={TD}>
                   <div className="flex gap-1.5">
-                    <button className={BTN.outlineSm}       onClick={() => onEdit(r)}>Edit</button>
-                    <button className={BTN.dangerOutlineSm} onClick={() => onDelete(r.id)}>Del</button>
+                    <button className={BTN.outlineSm}       onClick={() => onEdit(r)}    disabled={busy}>Edit</button>
+                    <button className={BTN.dangerOutlineSm} onClick={() => onDelete(r.id)} disabled={busy}>Del</button>
                   </div>
                 </td>
               </tr>

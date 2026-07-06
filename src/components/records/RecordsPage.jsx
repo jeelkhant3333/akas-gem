@@ -25,6 +25,7 @@ export default function RecordsPage({ showToast }) {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [editRow, setEditRow] = useState(null);
   const [sort,    setSort]    = useState({ k: "sellDate", d: "desc" });
+  const [busy,    setBusy]    = useState(false);
 
   // Load records once on mount.
   useEffect(() => {
@@ -80,11 +81,14 @@ export default function RecordsPage({ showToast }) {
   const handleDelete = async id => {
     if (confirm("Delete this record?")) {
       try {
+        setBusy(true);
         await remove(id).unwrap();
         await list();
         showToast("Record deleted");
       } catch (err) {
         showToast(err.message || "Delete failed");
+      } finally {
+        setBusy(false);
       }
     }
   };
@@ -157,6 +161,7 @@ export default function RecordsPage({ showToast }) {
             onSort={handleSort}
             onEdit={setEditRow}
             onDelete={handleDelete}
+            busy={busy}
             totalWt={totalWt}
             totalAmt={totalAmt}
           />
