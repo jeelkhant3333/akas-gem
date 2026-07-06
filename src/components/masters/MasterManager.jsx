@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useEntity } from "../../hooks/useEntity";
 import { BTN } from "../ui/btn";
+import Spinner from "../ui/Spinner";
 import MasterForm from "./MasterForm";
 
 const TH = "px-3.5 py-2.5 text-left whitespace-nowrap text-[11px] font-semibold text-gray-600 uppercase tracking-[0.5px]";
@@ -95,55 +96,57 @@ export default function MasterManager({ entity, showToast }) {
       </div>
 
       {status === "loading" && (
-        <div className="text-center py-14 px-5 text-gray-400"><div className="text-sm">Loading…</div></div>
+        <Spinner label={`Loading ${label}…`} />
       )}
       {status === "failed" && (
         <div className="text-center py-14 px-5 text-gray-400"><div className="text-sm">{error}</div></div>
       )}
 
-      {status !== "loading" && items.length === 0 ? (
-        <div className="text-center py-14 px-5 text-gray-400">
-          <div className="text-[40px] mb-2.5">◇</div>
-          <div className="text-sm">No {label} records.</div>
-        </div>
-      ) : (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[13px]">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className={TH}>#</th>
-                  {fields.map((f) => <th key={f.name} className={TH}>{f.label}</th>)}
-                  <th className={TH}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((row) => (
-                  <tr key={row.id} className="border-b border-gray-100 last:border-b-0 transition-colors hover:bg-gray-50">
-                    <td className={`${TD} font-mono text-xs text-gray-400`}>{row.id}</td>
-                    {fields.map((f) => <td key={f.name} className={TD}>{row[f.name] || "—"}</td>)}
-                    <td className={TD}>
-                      <div className="flex gap-1.5">
-                        <button
-                          className={BTN.outlineSm}
-                          onClick={() => setModal({ mode: "edit", row })}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className={BTN.dangerOutlineSm}
-                          onClick={() => handleDelete(row)}
-                        >
-                          Del
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {status !== "loading" && status !== "failed" && (
+        items.length === 0 ? (
+          <div className="text-center py-14 px-5 text-gray-400">
+            <div className="text-[40px] mb-2.5">◇</div>
+            <div className="text-sm">No {label} records.</div>
           </div>
-        </div>
+        ) : (
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className={TH}>#</th>
+                    {fields.map((f) => <th key={f.name} className={TH}>{f.label}</th>)}
+                    <th className={TH}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((row) => (
+                    <tr key={row.id} className="border-b border-gray-100 last:border-b-0 transition-colors hover:bg-gray-50">
+                      <td className={`${TD} font-mono text-xs text-gray-400`}>{row.id}</td>
+                      {fields.map((f) => <td key={f.name} className={TD}>{row[f.name] || "—"}</td>)}
+                      <td className={TD}>
+                        <div className="flex gap-1.5">
+                          <button
+                            className={BTN.outlineSm}
+                            onClick={() => setModal({ mode: "edit", row })}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className={BTN.dangerOutlineSm}
+                            onClick={() => handleDelete(row)}
+                          >
+                            Del
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
       )}
 
       {totalPages > 1 && (

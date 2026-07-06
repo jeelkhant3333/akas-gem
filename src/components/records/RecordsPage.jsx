@@ -3,6 +3,7 @@ import FiltersBar   from "./FiltersBar";
 import StatsRow     from "./StatsRow";
 import RecordsTable from "./RecordsTable";
 import DiamondForm  from "../form/DiamondForm";
+import Spinner      from "../ui/Spinner";
 import { useEntity } from "../../hooks/useEntity";
 import { useMasterOptions } from "../../hooks/useMasterOptions";
 
@@ -18,7 +19,7 @@ const EMPTY_FILTERS = { kapan: "", shape: "", location: "", paymentStatus: "", s
  *   showToast – fn(message)
  */
 export default function RecordsPage({ showToast }) {
-  const { items: records, list, update, remove } = useEntity("stone");
+  const { items: records, status, list, update, remove } = useEntity("stone");
   const masterOpts = useMasterOptions();
 
   const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -73,6 +74,9 @@ export default function RecordsPage({ showToast }) {
   const handleReset  = () => setFilters(EMPTY_FILTERS);
   const handleSort   = k  => setSort(p => ({ k, d: p.k === k && p.d === "asc" ? "desc" : "asc" }));
 
+  // Show a full-page loader on the initial fetch (records not yet loaded).
+  const initialLoading = status === "loading" && records.length === 0;
+
   const handleDelete = async id => {
     if (confirm("Delete this record?")) {
       try {
@@ -124,34 +128,40 @@ export default function RecordsPage({ showToast }) {
         <div className="text-xs text-gray-400">Manage, filter and export your diamond stock</div>
       </div>
 
-      <StatsRow
-        total={records.length}
-        showing={data.length}
-        totalWt={totalWt}
-        totalAmt={totalAmt}
-        pending={pending}
-      />
+      {initialLoading ? (
+        <Spinner label="Loading records…" />
+      ) : (
+        <>
+          <StatsRow
+            total={records.length}
+            showing={data.length}
+            totalWt={totalWt}
+            totalAmt={totalAmt}
+            pending={pending}
+          />
 
-      <FiltersBar
-        filters={filters}
-        onFilter={handleFilter}
-        onReset={handleReset}
-        onExport={handleExportCSV}
-        kapanOptions={kapanOptions}
-        shapeOptions={shapeOptions}
-        locationOptions={locationOptions}
-        paymentStatusOptions={paymentStatusOptions}
-      />
+          <FiltersBar
+            filters={filters}
+            onFilter={handleFilter}
+            onReset={handleReset}
+            onExport={handleExportCSV}
+            kapanOptions={kapanOptions}
+            shapeOptions={shapeOptions}
+            locationOptions={locationOptions}
+            paymentStatusOptions={paymentStatusOptions}
+          />
 
-      <RecordsTable
-        data={data}
-        sort={sort}
-        onSort={handleSort}
-        onEdit={setEditRow}
-        onDelete={handleDelete}
-        totalWt={totalWt}
-        totalAmt={totalAmt}
-      />
+          <RecordsTable
+            data={data}
+            sort={sort}
+            onSort={handleSort}
+            onEdit={setEditRow}
+            onDelete={handleDelete}
+            totalWt={totalWt}
+            totalAmt={totalAmt}
+          />
+        </>
+      )}
 
       {/* ── Edit Modal ─────────────────────────────────────────────────────── */}
       {editRow && (
