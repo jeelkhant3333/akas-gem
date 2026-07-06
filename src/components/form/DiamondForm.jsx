@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import Inp       from "../ui/Inp";
 import Dropdown  from "../ui/Dropdown";
 import Section   from "../ui/Section";
+import { BTN }   from "../ui/btn";
 import { EMPTY_FORM, FORM_DEFAULTS } from "../../constants/options";
 import { useMasterOptions } from "../../hooks/useMasterOptions";
 
@@ -184,10 +185,10 @@ export default function DiamondForm({ initial = EMPTY_FORM, onSave, onCancel }) 
       </Section>
 
       {/* ── Actions ───────────────────────────────────────────────────────── */}
-      <div className="btn-row">
-        <button className="btn btn-primary" onClick={save}>Save Record</button>
-        <button className="btn btn-outline" onClick={() => setF({ ...EMPTY_FORM, ...FORM_DEFAULTS })}>Clear</button>
-        {onCancel && <button className="btn btn-outline" onClick={onCancel}>Cancel</button>}
+      <div className="flex gap-2.5 mt-5">
+        <button className={BTN.primary} onClick={save}>Save Record</button>
+        <button className={BTN.outline} onClick={() => setF({ ...EMPTY_FORM, ...FORM_DEFAULTS })}>Clear</button>
+        {onCancel && <button className={BTN.outline} onClick={onCancel}>Cancel</button>}
       </div>
     </div>
   );

@@ -119,9 +119,9 @@ export default function RecordsPage({ showToast }) {
 
   return (
     <div>
-      <div className="page-header">
-        <div className="page-title">Inventory Records</div>
-        <div className="page-sub">Manage, filter and export your diamond stock</div>
+      <div className="mb-6">
+        <div className="text-xl font-semibold text-gray-800 mb-[3px]">Inventory Records</div>
+        <div className="text-xs text-gray-400">Manage, filter and export your diamond stock</div>
       </div>
 
       <StatsRow
@@ -155,13 +155,13 @@ export default function RecordsPage({ showToast }) {
 
       {/* ── Edit Modal ─────────────────────────────────────────────────────── */}
       {editRow && (
-        <div className="overlay" onClick={e => e.target === e.currentTarget && setEditRow(null)}>
-          <div className="modal">
-            <div className="modal-head">
-              <span className="modal-title">Edit — {editRow.kapan} / Lot {editRow.lotNo}</span>
-              <button className="modal-close" onClick={() => setEditRow(null)}>✕</button>
+        <div className="fixed inset-0 bg-gray-900/40 z-[200] flex items-center justify-center p-5 backdrop-blur-[2px]" onClick={e => e.target === e.currentTarget && setEditRow(null)}>
+          <div className="bg-white rounded-[10px] max-w-[860px] w-full max-h-[92vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            <div className="px-[22px] py-[18px] border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-[1] rounded-t-[10px]">
+              <span className="text-[15px] font-semibold text-gray-800">Edit — {editRow.kapan} / Lot {editRow.lotNo}</span>
+              <button className="border border-gray-200 text-gray-400 w-7 h-7 rounded-md cursor-pointer text-sm flex items-center justify-center transition-all hover:border-red-600 hover:text-red-600" onClick={() => setEditRow(null)}>✕</button>
             </div>
-            <div className="modal-body">
+            <div className="p-[22px]">
               <DiamondForm
                 initial={editRow}
                 onSave={handleUpdate}

@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import "./App.css";
 
 import Header      from "./components/layout/Header";
 import Toast       from "./components/ui/Toast";
@@ -33,15 +32,15 @@ export default function App() {
 
   return (
     <>
-      <div className="app">
+      <div className="min-h-screen flex flex-col">
         <Header tab={tab} setTab={setTab} recordCount={items.length} />
 
-        <main className="main">
+        <main className="flex-1 px-8 py-7 max-w-[1400px] mx-auto w-full max-[900px]:p-4">
           {tab === "add" && (
             <>
-              <div className="page-header">
-                <div className="page-title">Add Diamond Stone</div>
-                <div className="page-sub">Pricing fields (highlighted in blue) calculate automatically</div>
+              <div className="mb-6">
+                <div className="text-xl font-semibold text-gray-800 mb-[3px]">Add Diamond Stone</div>
+                <div className="text-xs text-gray-400">Pricing fields (highlighted in blue) calculate automatically</div>
               </div>
               <DiamondForm onSave={handleAddRecord} />
             </>

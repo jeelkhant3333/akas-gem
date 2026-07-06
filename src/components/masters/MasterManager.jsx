@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useEntity } from "../../hooks/useEntity";
+import { BTN } from "../ui/btn";
 import MasterForm from "./MasterForm";
+
+const TH = "px-3.5 py-2.5 text-left whitespace-nowrap text-[11px] font-semibold text-gray-600 uppercase tracking-[0.5px]";
+const TD = "px-3.5 py-2.5 whitespace-nowrap text-gray-800";
 
 /**
  * Generic CRUD screen for a single master entity: server-side search +
@@ -70,18 +74,19 @@ export default function MasterManager({ entity, showToast }) {
 
   return (
     <div>
-      <div className="filters-bar">
-        <form className="filter-field" style={{ minWidth: 220 }} onSubmit={submitSearch}>
-          <label>Search {label}</label>
+      <div className="bg-white border border-gray-200 rounded-lg py-3.5 px-[18px] mb-4 flex gap-3 flex-wrap items-end shadow-sm">
+        <form className="flex flex-col gap-1 min-w-[220px]" onSubmit={submitSearch}>
+          <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.5px]">Search {label}</label>
           <input
+            className="h-8 w-full px-2.5 rounded-md outline-none transition-[border-color,box-shadow] bg-white border border-gray-300 text-gray-800 text-xs placeholder:text-gray-400 focus:border-accent focus:shadow-[0_0_0_3px_rgba(22,127,179,0.12)]"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder={`Search ${label}…`}
           />
         </form>
-        <div className="filter-actions">
+        <div className="flex gap-2 ml-auto items-end">
           <button
-            className="btn btn-primary btn-sm"
+            className={BTN.primarySm}
             onClick={() => setModal({ mode: "add" })}
           >
             ＋ Add {label}
@@ -90,43 +95,43 @@ export default function MasterManager({ entity, showToast }) {
       </div>
 
       {status === "loading" && (
-        <div className="empty"><div className="empty-text">Loading…</div></div>
+        <div className="text-center py-14 px-5 text-gray-400"><div className="text-sm">Loading…</div></div>
       )}
       {status === "failed" && (
-        <div className="empty"><div className="empty-text">{error}</div></div>
+        <div className="text-center py-14 px-5 text-gray-400"><div className="text-sm">{error}</div></div>
       )}
 
       {status !== "loading" && items.length === 0 ? (
-        <div className="empty">
-          <div className="empty-icon">◇</div>
-          <div className="empty-text">No {label} records.</div>
+        <div className="text-center py-14 px-5 text-gray-400">
+          <div className="text-[40px] mb-2.5">◇</div>
+          <div className="text-sm">No {label} records.</div>
         </div>
       ) : (
-        <div className="table-card">
-          <div className="table-wrap">
-            <table>
-              <thead>
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-[13px]">
+              <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th>#</th>
-                  {fields.map((f) => <th key={f.name}>{f.label}</th>)}
-                  <th>Actions</th>
+                  <th className={TH}>#</th>
+                  {fields.map((f) => <th key={f.name} className={TH}>{f.label}</th>)}
+                  <th className={TH}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((row) => (
-                  <tr key={row.id}>
-                    <td className="mono" style={{ color: "var(--grey-400)" }}>{row.id}</td>
-                    {fields.map((f) => <td key={f.name}>{row[f.name] || "—"}</td>)}
-                    <td>
-                      <div style={{ display: "flex", gap: 6 }}>
+                  <tr key={row.id} className="border-b border-gray-100 last:border-b-0 transition-colors hover:bg-gray-50">
+                    <td className={`${TD} font-mono text-xs text-gray-400`}>{row.id}</td>
+                    {fields.map((f) => <td key={f.name} className={TD}>{row[f.name] || "—"}</td>)}
+                    <td className={TD}>
+                      <div className="flex gap-1.5">
                         <button
-                          className="btn btn-outline btn-sm"
+                          className={BTN.outlineSm}
                           onClick={() => setModal({ mode: "edit", row })}
                         >
                           Edit
                         </button>
                         <button
-                          className="btn btn-danger-outline btn-sm"
+                          className={BTN.dangerOutlineSm}
                           onClick={() => handleDelete(row)}
                         >
                           Del
@@ -142,19 +147,19 @@ export default function MasterManager({ entity, showToast }) {
       )}
 
       {totalPages > 1 && (
-        <div className="btn-row" style={{ justifyContent: "center", marginTop: 12 }}>
+        <div className="flex gap-2.5 justify-center mt-3">
           <button
-            className="btn btn-outline btn-sm"
+            className={BTN.outlineSm}
             disabled={pagination.pageNo <= 0}
             onClick={() => setPage(pagination.pageNo - 1)}
           >
             Prev
           </button>
-          <span style={{ alignSelf: "center" }}>
+          <span className="self-center">
             Page {pagination.pageNo + 1} / {totalPages}
           </span>
           <button
-            className="btn btn-outline btn-sm"
+            className={BTN.outlineSm}
             disabled={pagination.pageNo + 1 >= totalPages}
             onClick={() => setPage(pagination.pageNo + 1)}
           >
@@ -165,17 +170,17 @@ export default function MasterManager({ entity, showToast }) {
 
       {modal && (
         <div
-          className="overlay"
+          className="fixed inset-0 bg-gray-900/40 z-[200] flex items-center justify-center p-5 backdrop-blur-[2px]"
           onClick={(e) => e.target === e.currentTarget && setModal(null)}
         >
-          <div className="modal">
-            <div className="modal-head">
-              <span className="modal-title">
+          <div className="bg-white rounded-[10px] max-w-[860px] w-full max-h-[92vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            <div className="px-[22px] py-[18px] border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-[1] rounded-t-[10px]">
+              <span className="text-[15px] font-semibold text-gray-800">
                 {modal.mode === "edit" ? `Edit ${label}` : `Add ${label}`}
               </span>
-              <button className="modal-close" onClick={() => setModal(null)}>✕</button>
+              <button className="border border-gray-200 text-gray-400 w-7 h-7 rounded-md cursor-pointer text-sm flex items-center justify-center transition-all hover:border-red-600 hover:text-red-600" onClick={() => setModal(null)}>✕</button>
             </div>
-            <div className="modal-body">
+            <div className="p-[22px]">
               <MasterForm
                 fields={fields}
                 initial={modal.row}

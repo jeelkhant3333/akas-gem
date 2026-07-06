@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MASTERS } from "../../constants/masters";
+import { BTN } from "../ui/btn";
 import MasterManager from "./MasterManager";
 
 /**
@@ -12,16 +13,16 @@ export default function MastersPage({ showToast }) {
 
   return (
     <div>
-      <div className="page-header">
-        <div className="page-title">Masters</div>
-        <div className="page-sub">Manage lookup values used across diamond entry</div>
+      <div className="mb-6">
+        <div className="text-xl font-semibold text-gray-800 mb-[3px]">Masters</div>
+        <div className="text-xs text-gray-400">Manage lookup values used across diamond entry</div>
       </div>
 
-      <div className="filters-bar" style={{ flexWrap: "wrap" }}>
+      <div className="bg-white border border-gray-200 rounded-lg py-3.5 px-[18px] mb-4 flex gap-3 flex-wrap items-end shadow-sm">
         {MASTERS.map((m) => (
           <button
             key={m.key}
-            className={`btn btn-sm ${active === m.key ? "btn-primary" : "btn-outline"}`}
+            className={active === m.key ? BTN.primarySm : BTN.outlineSm}
             onClick={() => setActive(m.key)}
           >
             {m.label}

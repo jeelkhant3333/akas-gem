@@ -13,7 +13,11 @@ export default function Dropdown({ label, value, onChange, options = [] }) {
 
   return (
     <Field label={label}>
-      <select value={value ?? ""} onChange={e => onChange(e.target.value)}>
+      <select
+        className="h-9 w-full px-2.5 rounded-md outline-none transition-[border-color,box-shadow] bg-white border border-gray-300 text-gray-800 text-[13px] cursor-pointer focus:border-accent focus:shadow-[0_0_0_3px_rgba(22,127,179,0.12)]"
+        value={value ?? ""}
+        onChange={e => onChange(e.target.value)}
+      >
         <option value="">— select —</option>
         {norm.map(o => (
           <option key={o.value} value={o.value}>{o.label}</option>

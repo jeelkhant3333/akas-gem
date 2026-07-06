@@ -10,6 +10,8 @@
  *   locationOptions       – distinct location values from current records
  *   paymentStatusOptions  – distinct payment-status values from current records
  */
+import { BTN } from "../ui/btn";
+
 export default function FiltersBar({
   filters,
   onFilter,
@@ -22,52 +24,57 @@ export default function FiltersBar({
 }) {
   const f = (key) => (e) => onFilter(key, e.target.value);
 
+  const field   = "flex flex-col gap-1 min-w-[110px]";
+  const lbl     = "text-[10px] font-semibold text-gray-400 uppercase tracking-[0.5px]";
+  const control = "h-8 w-full px-2.5 rounded-md outline-none transition-[border-color,box-shadow] bg-white border border-gray-300 text-gray-800 text-xs focus:border-accent focus:shadow-[0_0_0_3px_rgba(22,127,179,0.12)]";
+
   return (
-    <div className="filters-bar">
-      <div className="filter-field" style={{ minWidth: 160 }}>
-        <label>Search</label>
+    <div className="bg-white border border-gray-200 rounded-lg py-3.5 px-[18px] mb-4 flex gap-3 flex-wrap items-end shadow-sm">
+      <div className={`${field} !min-w-[160px]`}>
+        <label className={lbl}>Search</label>
         <input
+          className={`${control} placeholder:text-gray-400`}
           value={filters.search}
           onChange={f("search")}
           placeholder="Party, cert no, lot…"
         />
       </div>
 
-      <div className="filter-field">
-        <label>Kapan</label>
-        <select value={filters.kapan} onChange={f("kapan")}>
+      <div className={field}>
+        <label className={lbl}>Kapan</label>
+        <select className={`${control} cursor-pointer`} value={filters.kapan} onChange={f("kapan")}>
           <option value="">All</option>
           {kapanOptions.map(k => <option key={k}>{k}</option>)}
         </select>
       </div>
 
-      <div className="filter-field">
-        <label>Shape</label>
-        <select value={filters.shape} onChange={f("shape")}>
+      <div className={field}>
+        <label className={lbl}>Shape</label>
+        <select className={`${control} cursor-pointer`} value={filters.shape} onChange={f("shape")}>
           <option value="">All</option>
           {shapeOptions.map(s => <option key={s}>{s}</option>)}
         </select>
       </div>
 
-      <div className="filter-field">
-        <label>Location</label>
-        <select value={filters.location} onChange={f("location")}>
+      <div className={field}>
+        <label className={lbl}>Location</label>
+        <select className={`${control} cursor-pointer`} value={filters.location} onChange={f("location")}>
           <option value="">All</option>
           {locationOptions.map(l => <option key={l}>{l}</option>)}
         </select>
       </div>
 
-      <div className="filter-field">
-        <label>Payment</label>
-        <select value={filters.paymentStatus} onChange={f("paymentStatus")}>
+      <div className={field}>
+        <label className={lbl}>Payment</label>
+        <select className={`${control} cursor-pointer`} value={filters.paymentStatus} onChange={f("paymentStatus")}>
           <option value="">All</option>
           {paymentStatusOptions.map(p => <option key={p}>{p}</option>)}
         </select>
       </div>
 
-      <div className="filter-actions">
-        <button className="btn btn-outline btn-sm" onClick={onReset}>Reset</button>
-        <button className="btn btn-success btn-sm" onClick={onExport}>↓ Export CSV</button>
+      <div className="flex gap-2 ml-auto items-end">
+        <button className={BTN.outlineSm} onClick={onReset}>Reset</button>
+        <button className={BTN.successSm} onClick={onExport}>↓ Export CSV</button>
       </div>
     </div>
   );

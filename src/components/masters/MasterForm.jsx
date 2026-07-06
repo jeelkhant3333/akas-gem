@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Inp from "../ui/Inp";
+import { BTN } from "../ui/btn";
 
 /**
  * Generic add/edit form driven by an entity's `fields` config.
@@ -37,10 +38,10 @@ export default function MasterForm({ fields, initial, onSave, onCancel }) {
           placeholder={f.label}
         />
       ))}
-      <div className="btn-row">
-        <button className="btn btn-primary" onClick={save}>Save</button>
+      <div className="flex gap-2.5 mt-5">
+        <button className={BTN.primary} onClick={save}>Save</button>
         {onCancel && (
-          <button className="btn btn-outline" onClick={onCancel}>Cancel</button>
+          <button className={BTN.outline} onClick={onCancel}>Cancel</button>
         )}
       </div>
     </div>
