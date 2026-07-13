@@ -14,9 +14,10 @@
  *   locationOptions       – location master labels
  *   paymentStatusOptions  – payment-status master labels
  */
+import { useEffect } from "react";
 import { BTN } from "../ui/btn";
 
-const LBL     = "text-[10px] font-semibold text-gray-400 uppercase tracking-[0.5px]";
+const LBL = "text-[10px] font-semibold text-gray-400 uppercase tracking-[0.5px]";
 const CONTROL = "h-8 w-full px-2.5 rounded-md outline-none transition-[border-color,box-shadow] bg-white border border-gray-300 text-gray-800 text-xs focus:border-accent focus:shadow-[0_0_0_3px_rgba(22,127,179,0.12)]";
 
 export default function FiltersBar({
@@ -33,6 +34,21 @@ export default function FiltersBar({
   paymentStatusOptions = [],
 }) {
   const f = (key) => (e) => onFilter(key, e.target.value);
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+  
+    return `${year}-${month}-${day}`;
+  };
+  
+  useEffect(() => {
+    onFilter("fromDate", formatDate(firstDay));
+    onFilter("toDate", formatDate(today));
+  }, []);
 
   return (
     <form
@@ -59,30 +75,49 @@ export default function FiltersBar({
 
       <div className="flex flex-col gap-1 min-w-[110px]">
         <label className={LBL}>Shape</label>
-        <select className={`${CONTROL} cursor-pointer`} value={filters.shape ?? ""} onChange={f("shape")}>
+        <select className={`${CONTROL} cursor-pointer`} value={filters.shapeId ?? ""} onChange={f("shapeId")}>
           <option value="">All</option>
-          {shapeOptions.map(s => <option key={s}>{s}</option>)}
+          {shapeOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
       </div>
 
       <div className="flex flex-col gap-1 min-w-[110px]">
         <label className={LBL}>Location</label>
-        <select className={`${CONTROL} cursor-pointer`} value={filters.location ?? ""} onChange={f("location")}>
+        <select className={`${CONTROL} cursor-pointer`} value={filters.locationId ?? ""} onChange={f("locationId")}>
           <option value="">All</option>
-          {locationOptions.map(l => <option key={l}>{l}</option>)}
+          {locationOptions.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
         </select>
       </div>
 
       <div className="flex flex-col gap-1 min-w-[110px]">
         <label className={LBL}>Payment</label>
-        <select className={`${CONTROL} cursor-pointer`} value={filters.paymentStatus ?? ""} onChange={f("paymentStatus")}>
+        <select className={`${CONTROL} cursor-pointer`} value={filters.paymentStatusId ?? ""} onChange={f("paymentStatusId")}>
           <option value="">All</option>
-          {paymentStatusOptions.map(p => <option key={p}>{p}</option>)}
+          {paymentStatusOptions.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
         </select>
       </div>
 
+      <div className="flex flex-col gap-1 min-w-27.5">
+        <label className={LBL}>From Date</label>
+        <input
+          type="date"
+          className={CONTROL}
+          value={filters.fromDate ?? formatDate(firstDay)}
+          onChange={f("fromDate")}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1 min-w-27.5">
+        <label className={LBL}>To Date</label>
+        <input
+          type="date"
+          className={CONTROL}
+          value={filters.toDate ?? formatDate(today)}
+          onChange={f("toDate")}
+        />
+      </div>
+
       <div className="flex gap-2 ml-auto items-end">
-        <button type="submit" className={BTN.primarySm}>Search</button>
         <button type="button" className={BTN.outlineSm} onClick={onReset}>Reset</button>
         <button type="button" className={BTN.successSm} onClick={onExport}>↓ Export CSV</button>
       </div>

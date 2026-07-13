@@ -65,11 +65,12 @@ export default function RecordsPage({ showToast }) {
 
   // Filter dropdown options come from the master lists; kapan is derived from
   // the loaded records (not a master entity).
-  const labelsOf = key => (masterOpts[key] ?? []).map(o => o.label).filter(Boolean);
+  // const labelsOf = key => (masterOpts[key] ?? []).map(o => o.label).filter(Boolean);
+  
   const kapanOptions         = [...new Set(records.map(r => r.kapan).filter(Boolean))];
-  const shapeOptions         = labelsOf("shape");
-  const locationOptions      = labelsOf("location");
-  const paymentStatusOptions = labelsOf("paymentStatus");
+  const shapeOptions         =  masterOpts["shape"]
+  const locationOptions      =  masterOpts["location"]
+  const paymentStatusOptions =  masterOpts["paymentStatus"];
 
   // ── Aggregates over the current page ──────────────────────────────────────
   const totalWt  = records.reduce((s, r) => s + (parseFloat(r.weightCt)    || 0), 0);
